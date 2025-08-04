@@ -426,10 +426,17 @@
                 order: -1;
             }
         }
+
+        /* Form Status Styling (Naya CSS) */
+        #form-status {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header>
         <div class="container">
             <nav>
@@ -446,7 +453,6 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="container">
             <div class="hero-content">
@@ -457,7 +463,6 @@
         </div>
     </section>
 
-    <!-- Services Section -->
     <section class="services" id="services">
         <div class="container">
             <div class="section-title text-center">
@@ -466,7 +471,6 @@
             </div>
             
             <div class="services-grid">
-                <!-- On-Page SEO -->
                 <div class="service-card">
                     <div class="service-icon">🔍</div>
                     <h3>On-Page SEO</h3>
@@ -480,7 +484,6 @@
                     </ul>
                 </div>
                 
-                <!-- Off-Page SEO -->
                 <div class="service-card">
                     <div class="service-icon">🚀</div>
                     <h3>Off-Page SEO</h3>
@@ -494,7 +497,6 @@
                     </ul>
                 </div>
                 
-                <!-- Technical SEO -->
                 <div class="service-card">
                     <div class="service-icon">⚙️</div>
                     <h3>Technical SEO</h3>
@@ -511,7 +513,6 @@
         </div>
     </section>
 
-    <!-- About Section -->
     <section class="about" id="about">
         <div class="container">
             <div class="about-content">
@@ -529,7 +530,6 @@
         </div>
     </section>
 
-    <!-- Testimonials Section -->
     <section class="testimonials" id="testimonials">
         <div class="container">
             <div class="section-title text-center">
@@ -586,7 +586,6 @@
         </div>
     </section>
 
-    <!-- Contact Section -->
     <section class="contact" id="contact">
         <div class="container">
             <div class="section-title text-center">
@@ -595,7 +594,7 @@
             </div>
             
             <div class="contact-form">
-                <form id="seoContactForm">
+                <form id="contact-form-lambda">
                     <div class="form-group">
                         <label for="name">Your Name</label>
                         <input type="text" id="name" class="form-control" required>
@@ -623,11 +622,11 @@
                     
                     <button type="submit" class="btn">Send Message</button>
                 </form>
+                <div id="form-status"></div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="footer-content">
@@ -708,31 +707,58 @@
                     });
                 });
             });
-            
-            // Form submission
-            const contactForm = document.getElementById('seoContactForm');
-            
+
+            // Form submission logic using Fetch API
+            const contactForm = document.getElementById('contact-form-lambda');
+            const formStatus = document.getElementById('form-status');
+
             contactForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Get form values
-                const name = document.getElementById('name').value;
-                const email = document.getElementById('email').value;
-                const message = document.getElementById('message').value;
-                
-                // Here you would typically send the data to a server
-                // For this example, we'll just show an alert
-                alert(`Thank you, ${name}! We've received your message and will contact you at ${email} soon.`);
-                
-                // Reset the form
-                contactForm.reset();
+                formStatus.textContent = 'Sending message...';
+                formStatus.style.color = '#3498db';
+
+                const formData = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    website: document.getElementById('website').value,
+                    message: document.getElementById('message').value
+                };
+
+                // **Yahan aapko apne API Gateway Invoke URL ko daalna hai**
+                const apiUrl = 'https://your-api-gateway-url.execute-api.us-east-1.amazonaws.com/prod/contact';
+
+                fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                    formStatus.textContent = 'Thank you! Your message has been sent successfully.';
+                    formStatus.style.color = '#27ae60';
+                    contactForm.reset();
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    formStatus.textContent = 'An error occurred. Please try again.';
+                    formStatus.style.color = '#c0392b';
+                });
             });
             
-            // Simple SEO Audit Tool (demo functionality)
+            // SEO Audit Tool (demo functionality)
             function runSEOAudit() {
                 const url = prompt("Enter your website URL for a quick audit:");
                 if (url) {
-                    // Simulate audit process
                     setTimeout(() => {
                         const issues = Math.floor(Math.random() * 15) + 5;
                         const score = 100 - (issues * 2);
